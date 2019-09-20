@@ -1,4 +1,5 @@
 from . import CustomQuery
+from datetime import datetime as dt
 
 class MyCountQuery(CustomQuery) :
     def __init__(self):
@@ -23,8 +24,10 @@ class MyCountQuery(CustomQuery) :
         self.tokens = ['nffRL49S9','kC3Xa7wT3']
     
     def result_process(self, x):
-        x.append('abc')
-        return x
+        out=dict(
+            metadata={'timestamp':str(dt.now()),'args':self.arg},
+            data=x)
+        return out
 
     def arg_process(self, x):
         x.update({'unArgumentEnPlus': 4 })
