@@ -18,14 +18,13 @@ Fonctionnalités
 Limitations
 ===========
 
-* Une erreur de syntaxe sur un script fait planter l'ensemble du module
 * Attention de ne pas écrire de reqûetes trop longues à executer : risque de timeout (ajoutez des indexes ou des vues matérialisés si besoin, ou imposez une limite)
 * Sortie en JSON uniquement
 
 Valeurs modifiables
 ==================
-* ``self.sql_text`` <string>: La requête à exécuter, les paramètres sont ajoutés dans la requête comme ``:nomduparameter``
+* ``self.sql_text`` <string>: La requête à exécuter, les paramètres sont ajoutés dans la requête comme ``:nomDuParametre``
 * ``self.tokens`` <[string]>(optionnel) Une liste de chaines de caractères à utiliser pour sécuriser l'API
 * ``self.args_default`` <{}> (optionnel) Un dictionnaire comportant les valeurs par défaut pour les paramètres optionnels
-* ``self.result_process(x)`` (optionnel) Une fonction qui modifie le résultats de la requête (doit retourner une liste ou un dictionnaire)
-* ``self.arg_process(x)`` (optionnel) Une fonction qui modifie les paramètres avant execution de la requête (doit retourner une liste)
+* ``self.result_process(x)`` (optionnel) Une fonction qui modifie le résultats de la requête (doit retourner une liste ou un dictionnaire). Par exemple pour ajouter des métadonnées.
+* ``self.arg_process(x)`` (optionnel) Une fonction qui modifie ou ajoute des paramètres avant execution de la requête (doit retourner une liste)

@@ -7,12 +7,12 @@ from geonature.utils.env import DB
 from geonature.core.gn_permissions import decorators as permissions
 from geonature.core.gn_permissions.tools import get_or_fetch_user_cruved
 
-
+import importlib
 import sys
 from os.path import join, dirname
 sys.path.append(dirname(__file__))
+
 import customs_query
-from customs_query import *
 
 blueprint = Blueprint('myapi', __name__)
 
@@ -36,10 +36,12 @@ def bp_test():
 @json_resp
 def qr_route(query_name):
     try :
-        mod = getattr(customs_query,query_name)
+        mod = importlib.import_module('.'+query_name,'customs_query')
         qr = mod._qr
-    except AttributeError:
+    except ImportError:
         return dict(error='Not found'), 404
+    except SyntaxError:
+        return dict(error='Server error (syntaxe)'), 500
     args = qr.args_default
     args.update(request.args.to_dict())
     qr.set_args(args)
