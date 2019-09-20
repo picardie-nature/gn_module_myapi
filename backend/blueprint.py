@@ -41,7 +41,7 @@ def qr_route(query_name):
     except AttributeError:
         return dict(error='Not found'), 404
     args = qr.args_default
-    args.update(request.args)
+    args.update(request.args.to_dict())
     qr.set_args(args)
     if not qr.is_allowed(request.args.get('token', None)):
         return dict(error='wrong token'), 401
