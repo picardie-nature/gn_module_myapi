@@ -20,18 +20,6 @@ blueprint = Blueprint('myapi', __name__)
 def info():
     return 'Hello world !'
 
-@blueprint.route('/test/', methods=['GET'])
-@json_resp
-def bp_test():
-    ctx=count.ctx
-    ctx.set_args(request.args)
-    if not ctx.is_allowed(request.args.get('token', None)):
-        return dict(error='wrong token')
-    
-    result = ctx.execute()
-    return result
-
-
 @blueprint.route('/<string:query_name>/', methods=['GET'])
 @json_resp
 def qr_route(query_name):
