@@ -13,7 +13,8 @@ Fonctionnalités
 * Possibilité d'ajouter un script python pour modifier la sortie de la requête
 * Possibilité d'ajouter des tokens pour limiter l'accès (*?token=maclesupersecrete*)
 
- exemple de requete : ..geonature/api/myapi/LENOMDEMONAPI/?token=clesecrete&param1=toto&param2=tata
+ exemple de requete : ..geonature/api/myapi/masuperrequetedelamort/?token=clesecrete&param1=toto&param2=tata
+
 
 Limitations
 ===========
@@ -23,9 +24,11 @@ Limitations
 * L'ajout ou la modification d'une API nécessite le redemarrage de geonature ``sudo supervisorctl restart geonature2``
 
 Valeurs modifiables
-==================
+===================
 * ``self.sql_text`` <string>: La requête à exécuter, les paramètres sont ajoutés dans la requête comme ``:nomDuParametre``
 * ``self.tokens`` <[string]>(optionnel) Une liste de chaines de caractères à utiliser pour sécuriser l'API
 * ``self.args_default`` <{}> (optionnel) Un dictionnaire comportant les valeurs par défaut pour les paramètres optionnels
 * ``self.result_process(x)`` (optionnel) Une fonction qui modifie le résultats de la requête (doit retourner une liste ou un dictionnaire). Par exemple pour ajouter des métadonnées.
 * ``self.arg_process(x)`` (optionnel) Une fonction qui modifie ou ajoute des paramètres avant execution de la requête (doit retourner une liste)
+
+Les scripts doivent être ajouté dans le dossier ``customs_query``. Le plus simple est de partir d'un exemple existant. Le nom du fichier sera le nom pour accéder à l'API. *../geonature/api/myapi/NOMDUFICHIER/?token=clesecrete&param1=toto&param2=tata*
