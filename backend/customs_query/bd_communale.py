@@ -1,7 +1,8 @@
 from . import CustomQuery
 from datetime import datetime as dt
 
-class MyCountQuery(CustomQuery) :
+
+class MyCustomQuery(CustomQuery) :
     def __init__(self):
         super().__init__()
         self.sql_text = """
@@ -33,7 +34,7 @@ class MyCountQuery(CustomQuery) :
         x.update({'unArgumentEnPlus': 4 })
         return x
 
-_qr = MyCountQuery()
 
 
+_qr = MyCustomQuery()
 
