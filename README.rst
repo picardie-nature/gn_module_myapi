@@ -18,8 +18,9 @@ Fonctionnalités
 Limitations
 ===========
 
-* Une erreur de syntaxe sur un script fait planter l'ensemble du module 
-* Attention de ne pas écrire de reqûetes trop longues à executé (ajoutez des indexes ou des vues matérialisés si besoin, ou imposez une limite)
+* Une erreur de syntaxe sur un script fait planter l'ensemble du module
+* Attention de ne pas écrire de reqûetes trop longues à executer : risque de timeout (ajoutez des indexes ou des vues matérialisés si besoin, ou imposez une limite)
+* Sortie en JSON uniquement
 
 Valeurs modifiables
 ==================
