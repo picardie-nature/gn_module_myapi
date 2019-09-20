@@ -26,5 +26,5 @@ Valeurs modifiables
 * ``self.sql_text`` <string>: La requête à exécuter, les paramètres sont ajoutés dans la requête comme ``:nomduparameter``
 * ``self.tokens`` <[string]>(optionnel) Une liste de chaines de caractères à utiliser pour sécuriser l'API
 * ``self.args_default`` <{}> (optionnel) Un dictionnaire comportant les valeurs par défaut pour les paramètres optionnels
-*``self.result_process(x)`` (optionnel) Une fonction qui modifie le résultats de la requête (doit retourner une liste ou un dictionnaire)
-*``self.arg_process(x)`` (optionnel) Une fonction qui modifie les paramètres avant execution de la requête (doit retourner une liste)
+* ``self.result_process(x)`` (optionnel) Une fonction qui modifie le résultats de la requête (doit retourner une liste ou un dictionnaire)
+* ``self.arg_process(x)`` (optionnel) Une fonction qui modifie les paramètres avant execution de la requête (doit retourner une liste)
