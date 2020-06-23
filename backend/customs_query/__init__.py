@@ -32,3 +32,8 @@ class CustomQuery(object) :
         if len(self.tokens) == 0 or t in self.tokens :
             return True
         return False
+
+    def tuplize(self,var):
+        if type(var) is tuple:
+            return var
+        return tuple(var.split(','))

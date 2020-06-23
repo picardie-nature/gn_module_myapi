@@ -10,6 +10,7 @@ from datetime import datetime as dt
 class MyCustomQuery(CustomQuery) :
     def __init__(self):
         super().__init__()
+        self.args_default=dict(cd_nom='183716')
         self.sql_text = """
                  WITH a AS(
 SELECT DISTINCT ON (tx.cd_nom)
@@ -23,9 +24,8 @@ SELECT DISTINCT ON (tx.cd_nom)
     JOIN gn_synthese.cor_area_synthese cas ON cas.id_synthese = s.id_synthese 
     JOIN ref_geo.l_areas ar ON ar.id_area = cas.id_area 
     WHERE 
-        s.date_min >= now()-'2 years'::interval
-        AND ar.area_code IN :area 
-        AND EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom IN :cd_nom )
+        ar.area_code IN  :area  
+        AND EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom IN  :cd_nom )
     ORDER BY tx.cd_nom, COALESCE(s.meta_create_date,'2009-01-01') ASC
     )
     SELECT 
@@ -43,14 +43,14 @@ SELECT DISTINCT ON (tx.cd_nom)
     JOIN taxonomie.taxref tx ON tx.cd_nom = a.cd_nom
     JOIN gn_synthese.cor_area_synthese cas ON cas.id_synthese = a.id_synthese 
     JOIN ref_geo.l_areas ar ON ar.id_area = cas.id_area AND ar.id_type = 25
-    WHERE s.meta_create_date IS NOT null
+    WHERE s.meta_create_date IS NOT null AND s.date_min >= now()-'2 years'::interval
     GROUP BY s.id_synthese , tx.cd_nom 
     ORDER BY s.meta_create_date DESC 
     LIMIT 50
         """
+       
     def arg_process(self, x):
-        x.update({'area': tuple(x['area'].split(',')) })
-        x.update({'cd_nom': tuple(x.get('cd_nom','183716').split(',')) })
+        x.update({'area': self.tuplize(x['area']), 'cd_nom': self.tuplize(x['cd_nom'] )   })
         return x
 
     def result_process(self, x):
