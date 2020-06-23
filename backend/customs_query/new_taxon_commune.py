@@ -22,7 +22,10 @@ SELECT DISTINCT ON (tx.cd_nom)
     JOIN taxonomie.taxref tx ON tx.cd_nom = taxonomie.find_cdref_sp(s.cd_nom)
     JOIN gn_synthese.cor_area_synthese cas ON cas.id_synthese = s.id_synthese 
     JOIN ref_geo.l_areas ar ON ar.id_area = cas.id_area 
-    WHERE ar.area_code IN :area
+    WHERE 
+        s.date_min >= now()-'2 years'::interval
+        AND ar.area_code IN :area 
+        AND EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom IN :cd_nom )
     ORDER BY tx.cd_nom, COALESCE(s.meta_create_date,'2009-01-01') ASC
     )
     SELECT 
@@ -47,12 +50,13 @@ SELECT DISTINCT ON (tx.cd_nom)
         """
     def arg_process(self, x):
         x.update({'area': tuple(x['area'].split(',')) })
+        x.update({'cd_nom': tuple(x.get('cd_nom','183716').split(',')) })
         return x
 
     def result_process(self, x):
         for i,e in enumerate(x) :
             description="""<p><a href='https://clicnat.fr/espece/{}'><i>{}</i></a> (<i>{}</i>) observé le {} par {}. </p>
-                <p>Commune de {}.</p> <p>Il s'agit d'une nouvelle espèce pour le territoire de {}</p>""".format(e['cd_nom'], e['lb_nom'], e['famille'], e['date_obs'].strftime('%d/%m/%Y'), e['observers'], e['commune'],e['ref_area'])
+                <p>Commune de {}.</p> <p>Il s'agit d'une nouvelle espèce pour le territoire de {}.</p>""".format(e['cd_nom'], e['lb_nom'], e['famille'], e['date_obs'].strftime('%d/%m/%Y'), e['observers'], e['commune'],e['ref_area'])
             title="<i>{}</i> observé le {}".format(e['lb_nom'], e['date_obs'].strftime('%d/%m/%Y') ),
             x[i].update(dict(
                 unique_id_sinp=str(e['unique_id_sinp']),
