@@ -1,7 +1,6 @@
 """
 Flux RSS permettant de publier une entrée dès qu'un nouveau taxon est découvert sur un territoire (simple ou composé).
-Exemple : https://geonature.clicnat.fr/api/myapi/rss/new_taxon_commune/?area=80730,80001
-TODO ajouter la possiblité de filter les taxons
+Exemple : https://geonature.clicnat.fr/api/myapi/rss/new_taxon_territory/?area=80730,80001
 """
 from . import CustomQuery
 from datetime import datetime as dt
