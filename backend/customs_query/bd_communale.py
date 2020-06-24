@@ -36,5 +36,5 @@ class MyCustomQuery(CustomQuery) :
 
 
 
-_qr = MyCustomQuery()
+_qr = MyCustomQuery
 

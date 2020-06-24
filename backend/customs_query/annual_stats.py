@@ -19,4 +19,4 @@ class MyQuery(CustomQuery) :
             Statistiques annuelles de la base
         """
     
-_qr = MyQuery()
+_qr = MyQuery

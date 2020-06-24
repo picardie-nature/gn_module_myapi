@@ -71,5 +71,5 @@ SELECT DISTINCT ON (tx.cd_nom)
             ))
         return x
 
-_qr = MyCustomQuery()
+_qr = MyCustomQuery
 

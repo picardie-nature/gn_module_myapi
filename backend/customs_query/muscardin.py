@@ -33,5 +33,5 @@ class MyCustomQuery(CustomQuery) :
             ))
         return x
 
-_qr = MyCustomQuery()
+_qr = MyCustomQuery
 

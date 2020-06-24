@@ -27,7 +27,7 @@ def info():
 def qr_route(query_name):
     try :
         mod = importlib.import_module('.'+query_name,'customs_query')
-        qr = mod._qr
+        qr = mod._qr()
     except ImportError:
         return dict(error='Not found'), 404
     except SyntaxError:
@@ -45,7 +45,7 @@ def qr_route(query_name):
 def qr_route_rss(query_name):
     try :
         mod = importlib.import_module('.'+query_name,'customs_query')
-        qr = mod._qr
+        qr = mod._qr()
     except ImportError:
         return dict(error='Not found'), 404
     except SyntaxError:
