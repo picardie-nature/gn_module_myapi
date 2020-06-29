@@ -11,6 +11,7 @@ class MyCustomQuery(CustomQuery) :
     def __init__(self):
         super().__init__()
         self.args_default=dict(cd_nom='183716') #Animalia par defaut
+        self.rss_channel_info.update(dict(title='Clicnat - Nouvelles observations', link='https://clicnat.fr', description="Ce flux permet de recevoir les dernières observations saisies en base. Il est possible de filter les taxons concernés avec le paramètre ""cd_nom""." ))
         self.sql_text = """
                     SELECT 
     s.unique_id_sinp,
@@ -64,7 +65,7 @@ class MyCustomQuery(CustomQuery) :
             title="<i>{}</i> observé le {}".format(e['lb_nom'], e['date_obs'].strftime('%d/%m/%Y') )
             x[i].update(dict(
                 unique_id_sinp=str(e['unique_id_sinp']),
-                date_obs=str(e['date_obs']),
+                pub_date=e['pub_date'],
                 title="{} observé le {}".format(e['lb_nom'],e['date_obs'].strftime('%d/%m/%Y') ),
                 description=description,
                 link='https://clicnat.fr/espece/{}'.format(e['cd_nom'])

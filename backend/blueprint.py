@@ -63,12 +63,13 @@ def qr_route_rss(query_name):
 
     template = Template(
     """<?xml version="1.0" encoding="UTF-8"?>
-    <rss version="2.0">
+    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
         <channel>
-            <title>Clicnat Flux</title>
-            <description>Beta, flux clicnat</description>
+            <title>{{ channel_info.title }}</title>
+            <description>{{ channel_info.description }}</description>
             <lastBuildDate>{{ lbd }}</lastBuildDate>
-            <link>http://www.example.org</link>
+            <atom:link href="{{ current_url }}" rel="self" type="application/rss+xml" />
+            <link>{{ channel_info.link }}</link>
                 {% for xml_item in xml_items %}
                 <item>
                     <title><![CDATA[ {{ xml_item.title }} ]]></title>
@@ -83,7 +84,9 @@ def qr_route_rss(query_name):
 
     out=template.render(
         lbd=email.utils.format_datetime(datetime.now()),
-        xml_items=xml_items 
+        xml_items=xml_items,
+        channel_info=qr.rss_channel_info,
+        current_url='https//geonature.clicnat.fr/api/myapi/rss/obs_taxon/'
     )
 
     return Response(out,mimetype="application/xml")

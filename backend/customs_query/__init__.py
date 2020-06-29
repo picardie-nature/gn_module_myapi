@@ -11,6 +11,7 @@ class CustomQuery(object) :
         self.arg=dict()
         self.tokens=list()
         self.args_default=dict()
+        self.rss_channel_info=dict(title='Geonature Flux', description='Flux fourni par GeoNature')
     
     def _make_query(self):
         r=DB.session.execute(self.sql_text,self.arg_process(self.arg))
