@@ -63,9 +63,9 @@ def qr_route_rss(query_name):
             <title><![CDATA[ {title} ]]></title>
             <description><![CDATA[ {description} ]]></description>
             <pubDate>{pub_date}</pubDate>
-            <link>http://www.example.org/actu1</link>
+            <link>{link}</link>
         </item>
-        """.format(title=e.get('title','Sans titre'), pub_date=email.utils.format_datetime(e['pub_date']), description=e.get('description','Pas de description'))
+        """.format(title=e.get('title','Sans titre'), pub_date=email.utils.format_datetime(e['pub_date']), description=e.get('description','Pas de description'), link=e.get('link','https://clicnat.fr'))
     
     xml="""<?xml version="1.0" encoding="UTF-8"?>
         <rss version="2.0">
