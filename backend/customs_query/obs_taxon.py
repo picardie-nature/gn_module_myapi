@@ -33,7 +33,7 @@ class MyCustomQuery(CustomQuery) :
     WHERE 
     	EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom IN  :cd_nom)
     	 AND s.meta_create_date >= now()-'3 month'::INTERVAL AND s.meta_create_date IS NOT null 
-    	--AND tx.cd_nom IN (SELECT (taxonomie.find_all_taxons_children(186206)).cd_nom) 
+        AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
     GROUP BY s.id_synthese , tx.cd_nom, media.id_media 
     ORDER BY s.meta_create_date DESC 
     LIMIT 150
@@ -47,7 +47,7 @@ class MyCustomQuery(CustomQuery) :
         for i,e in enumerate(x) :
             template_description=Template(
                 """<p><a href='https://clicnat.fr/espece/{{ cd_nom }}'><i>{{ lb_nom }}</i></a> (<i>{{ fm }}</i>) observé le {{date_obs}} par {{observers}}. </p> 
-                {% if commune_name is not none %}<p>Commune de <a href="https://clicnat.fr/territoire/{{commune_code}}>{{commune_name}}</a> ({{commune_code}}).</p>{% endif %}
+                {% if commune_name is not none %}<p>Commune de <a href="https://clicnat.fr/territoire/{{commune_code}}">{{commune_name}}</a> ({{commune_code}}).</p>{% endif %}
                 <table>
                     <tr><td>Classe</td><td><i>{{cl}}</i></td></tr>
                     <tr><td>Ordre</td><td><i>{{ordre}}</i></td></tr>
