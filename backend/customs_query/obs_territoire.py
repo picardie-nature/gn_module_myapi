@@ -5,13 +5,17 @@ Exemple : https://geonature.clicnat.fr/api/myapi/rss/new_taxon_territory/?area=8
 from . import CustomQuery
 from datetime import datetime as dt
 
+from geonature.core.ref_geo.models import LAreas
+
 from jinja2 import Template
 
 class MyCustomQuery(CustomQuery) :
     def __init__(self,opt, **kwargs):
         super().__init__()
-        self.args_default=dict(area = opt or '80021') #Amiens par defaut (?)
-        self.rss_channel_info.update(dict(title='Flux territoire', link='https://clicnat.fr', description="Flux permettant de recevoir les observations d'un territoire" )) #TODO ajouter le nom du territoire dans le titre
+        area_code = opt or '80021' #Amiens par defaut (?)
+        self.args_default=dict(area = area_code) #Amiens par defaut (?)
+        ar=LAreas.query.filter_by(area_code=area_code).first()
+        self.rss_channel_info.update(dict(title='Territoire de {}'.format(ar.area_name), link='https://clicnat.fr', description="Flux permettant de recevoir les observations d'un territoire" )) #TODO ajouter le nom du territoire dans le titre
         self.sql_text = """
                SELECT * FROM(
     SELECT DISTINCT ON (s.unique_id_sinp)
