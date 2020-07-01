@@ -43,10 +43,11 @@ def qr_route(query_name):
     return result
 
 @blueprint.route('/rss/<string:query_name>/', methods=['GET'])
-def qr_route_rss(query_name):
+@blueprint.route('/rss/<string:query_name>/<opt>.rss', methods=['GET'])
+def qr_route_rss(query_name, opt = None):
     try :
         mod = importlib.import_module('.'+query_name,'customs_query')
-        qr = mod._qr()
+        qr = mod._qr(opt=opt)
     except ImportError:
         return dict(error='Not found'), 404
     except SyntaxError as err:
@@ -68,7 +69,6 @@ def qr_route_rss(query_name):
             <title>{{ channel_info.title }}</title>
             <description>{{ channel_info.description }}</description>
             <lastBuildDate>{{ lbd }}</lastBuildDate>
-            <atom:link href="{{ current_url }}" rel="self" type="application/rss+xml" />
             <link>{{ channel_info.link }}</link>
                 {% for xml_item in xml_items %}
                 <item>
@@ -85,8 +85,7 @@ def qr_route_rss(query_name):
     out=template.render(
         lbd=email.utils.format_datetime(datetime.now()),
         xml_items=xml_items,
-        channel_info=qr.rss_channel_info,
-        current_url='https//geonature.clicnat.fr/api/myapi/rss/obs_taxon/'
+        channel_info=qr.rss_channel_info
     )
 
     return Response(out,mimetype="application/xml")

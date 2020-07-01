@@ -7,18 +7,25 @@ from datetime import datetime as dt
 
 from jinja2 import Template
 
+from geonature.core.taxonomie.models import Taxref
+
 class MyCustomQuery(CustomQuery) :
-    def __init__(self):
+    def __init__(self,opt=None,**kwargs):
         super().__init__()
-        self.args_default=dict(cd_nom='183716') #Animalia par defaut
-        self.rss_channel_info.update(dict(title='Clicnat - Nouvelles observations', link='https://clicnat.fr', description="Ce flux permet de recevoir les dernières observations saisies en base. Il est possible de filter les taxons concernés avec le paramètre ""cd_nom""." ))
+        cd_nom=opt or '183716'
+        self.args_default=dict(cd_nom = cd_nom) #Animalia par defaut
+        tx=Taxref.query.filter_by(cd_nom=cd_nom).first()
+        self.rss_channel_info.update(dict(title='Observation de {}'.format(tx.lb_nom), link='https://clicnat.fr', description="Flux permettant de recevoir les observations d'un taxon" ))
         self.sql_text = """
+    SELECT * FROM (
                     SELECT 
     s.unique_id_sinp,
     s.date_min AS date_obs,
     s.meta_create_date AS pub_date,
-    string_agg(ar.area_name,',') AS commune ,
-    string_agg(ar.area_code,',') AS commune_code ,
+    (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_name ,
+    (SELECT area_code FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_code ,
+    (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=36 LIMIT 1) AS epci_name ,
+    (SELECT area_code FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=36 LIMIT 1) AS epci_code ,
     s.observers,
     tx.lb_nom,
     tx.cd_nom,
@@ -28,40 +35,34 @@ class MyCustomQuery(CustomQuery) :
     id_media
 	FROM gn_synthese.synthese s 
     JOIN taxonomie.taxref tx ON tx.cd_nom = taxonomie.find_cdref_sp(s.cd_nom)
-    LEFT JOIN gn_synthese.cor_area_synthese cas ON cas.id_synthese = s.id_synthese 
-    LEFT JOIN ref_geo.l_areas ar ON ar.id_area = cas.id_area AND ar.id_type = 25
     LEFT JOIN taxonomie.t_medias media ON media.cd_ref=tx.cd_nom AND media.id_type=1
     WHERE 
-    	EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom IN  :cd_nom)
+    	EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom = :cd_nom)
     	 AND s.meta_create_date >= now()-'3 month'::INTERVAL AND s.meta_create_date IS NOT null 
         AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
     GROUP BY s.id_synthese , tx.cd_nom, media.id_media 
     ORDER BY s.meta_create_date DESC 
     LIMIT 150
+    ) as a ORDER BY pub_date DESC
         """
-       
-    def arg_process(self, x):
-        x.update({'cd_nom': self.tuplize(x['cd_nom'] )   })
-        return x
 
     def result_process(self, x): #TODO utilser les tempates jinja
         for i,e in enumerate(x) :
             template_description=Template(
-                """<p><a href='https://clicnat.fr/espece/{{ cd_nom }}'><i>{{ lb_nom }}</i></a> (<i>{{ fm }}</i>) observé le {{date_obs}} par {{observers}}. </p> 
+                """<p><a href='https://clicnat.fr/espece/{{ cd_nom }}'><i>{{ lb_nom }}</i></a> observé le {{ date_obs.strftime('%d/%m/%Y') }} par {{observers}}. </p> 
                 {% if commune_name is not none %}<p>Commune de <a href="https://clicnat.fr/territoire/{{commune_code}}">{{commune_name}}</a> ({{commune_code}}).</p>{% endif %}
+                {% if epci_name is not none %}<p> <a href="https://clicnat.fr/territoire/{{epci_code}}">{{epci_name}}</a> ({{epci_code}}).</p>{% endif %}
                 <table>
-                    <tr><td>Classe</td><td><i>{{cl}}</i></td></tr>
+                    <tr><td>Classe</td><td><i>{{classe}}</i></td></tr>
                     <tr><td>Ordre</td><td><i>{{ordre}}</i></td></tr>
-                    <tr><td>Famille</td><td><i>{{fm}}</i></td></tr>
+                    <tr><td>Famille</td><td><i>{{famille}}</i></td></tr>
                 </table>
-                <p><small>Observation saisie le : {{pubDate}}</small></p>
+                <p><small>Observation saisie le : {{pub_date}}</small></p>
                 {% if id_media is not none %}<img src="https://taxhub.clicnat.fr/api/tmedias/thumbnail/{{id_media}}?h=200">{% endif %}
                 """
             )
-            description=template_description.render( 
-                cd_nom=e['cd_nom'], lb_nom=e['lb_nom'], cl=e['classe'], ordre=e['ordre'], fm=e['famille'], date_obs=e['date_obs'].strftime('%d/%m/%Y'), observers=e['observers'], id_media=e['id_media'], commune_name=e['commune'], commune_code=e['commune_code'], pubDate=e['pub_date'].strftime('%d/%m/%Y')
-            )
-            
+            description=template_description.render(**e)            
+
             title="<i>{}</i> observé le {}".format(e['lb_nom'], e['date_obs'].strftime('%d/%m/%Y') )
             x[i].update(dict(
                 unique_id_sinp=str(e['unique_id_sinp']),
