@@ -38,7 +38,7 @@ class MyCustomQuery(CustomQuery) :
     LEFT JOIN taxonomie.t_medias media ON media.cd_ref=tx.cd_nom AND media.id_type=1
     WHERE 
     	EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom = :cd_nom)
-    	 AND s.meta_create_date >= now()-'3 month'::INTERVAL AND s.meta_create_date IS NOT null 
+    	 AND s.meta_create_date >= now()-'15 days'::INTERVAL AND s.meta_create_date IS NOT null 
         AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
     GROUP BY s.id_synthese , tx.cd_nom, media.id_media 
     ORDER BY s.meta_create_date DESC 

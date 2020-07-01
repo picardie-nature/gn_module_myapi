@@ -44,7 +44,7 @@ class MyCustomQuery(CustomQuery) :
     LEFT JOIN taxonomie.t_medias media ON media.cd_ref=tx.cd_nom AND media.id_type=1
     WHERE 
     	ar.area_code = :area
-    	 AND s.meta_create_date >= now()-'1 month'::INTERVAL AND s.meta_create_date IS NOT null 
+    	 AND s.meta_create_date >= now()-'15 days'::INTERVAL AND s.meta_create_date IS NOT null 
         AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
     ORDER BY s.unique_id_sinp
     LIMIT 150
