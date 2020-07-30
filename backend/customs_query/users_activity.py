@@ -5,12 +5,12 @@ class MyQuery(CustomQuery) :
         super().__init__()
         self.sql_text = """
           SELECT
-                *
-        FROM shared.annual_stats ;
+                interv::text, n_login, n_saisisseur
+        FROM shared.stats_users_activity ;
         """
         
         self.help="""
-            Statistiques annuelles de la base
+            Utilisateurs loguée sur clicnat
         """
     
 _qr = MyQuery

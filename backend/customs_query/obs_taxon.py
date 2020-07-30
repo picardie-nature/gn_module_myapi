@@ -50,8 +50,7 @@ class MyCustomQuery(CustomQuery) :
         for i,e in enumerate(x) :
             template_description=Template(
                 """<p><a href='https://clicnat.fr/espece/{{ cd_nom }}'><i>{{ lb_nom }}</i></a> observé le {{ date_obs.strftime('%d/%m/%Y') }} par {{observers}}. </p> 
-                {% if commune_name is not none %}<p>Commune de <a href="https://clicnat.fr/territoire/{{commune_code}}">{{commune_name}}</a> ({{commune_code}}).</p>{% endif %}
-                {% if epci_name is not none %}<p> <a href="https://clicnat.fr/territoire/{{epci_code}}">{{epci_name}}</a> ({{epci_code}}).</p>{% endif %}
+                    <p> Localisation : <a href="https://clicnat.fr/territoire/{{epci_code}}">{{epci_name}}</a> > <a href="https://clicnat.fr/territoire/{{commune_code}}">{{commune_name}}</a> ({{commune_code}})</p>
                 <table>
                     <tr><td>Classe</td><td><i>{{classe}}</i></td></tr>
                     <tr><td>Ordre</td><td><i>{{ordre}}</i></td></tr>
