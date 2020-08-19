@@ -11,6 +11,7 @@ class CustomQuery(object) :
         self.arg=dict()
         self.tokens=list()
         self.args_default=dict()
+        self.rss_channel_info=dict(title='Geonature Flux', description='Flux fourni par GeoNature')
     
     def _make_query(self):
         r=DB.session.execute(self.sql_text,self.arg_process(self.arg))
@@ -32,3 +33,8 @@ class CustomQuery(object) :
         if len(self.tokens) == 0 or t in self.tokens :
             return True
         return False
+
+    def tuplize(self,var):
+        if type(var) is tuple:
+            return var
+        return tuple(var.split(','))

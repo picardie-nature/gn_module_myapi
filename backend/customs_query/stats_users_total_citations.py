@@ -6,7 +6,7 @@ class MyQuery(CustomQuery) :
         self.sql_text = """
           SELECT
                 *
-        FROM shared.annual_stats ;
+        FROM shared.stats_users_total_citations ORDER BY year, n_users;
         """
         
         self.help="""

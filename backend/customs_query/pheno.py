@@ -30,4 +30,4 @@ class MyQuery(CustomQuery) :
             Renvoi la phénologie des espèces pour dessiner des boites à moustaches [0.05,0.25,0.5,0.75,0.95]
         """
     
-_qr = MyQuery()
+_qr = MyQuery

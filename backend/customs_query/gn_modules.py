@@ -14,7 +14,7 @@ class MyCountQuery(CustomQuery) :
         x.update({'unArgumentEnPlus': 4 })
         return x
 
-_qr = MyCountQuery()
+_qr = MyCountQuery
 
 
 
