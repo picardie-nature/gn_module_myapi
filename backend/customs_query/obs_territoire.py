@@ -17,13 +17,11 @@ class MyCustomQuery(CustomQuery) :
         ar=LAreas.query.filter_by(area_code=area_code).first()
         self.rss_channel_info.update(dict(title='Territoire de {}'.format(ar.area_name), link='https://clicnat.fr', description="Flux permettant de recevoir les observations d'un territoire" )) #TODO ajouter le nom du territoire dans le titre
         self.sql_text = """
-               SELECT * FROM(
+                 SELECT * FROM(
     SELECT DISTINCT ON (s.unique_id_sinp)
     s.unique_id_sinp,
-    (SELECT date_min FROM gn_synthese.synthese_usable s2 JOIN gn_synthese.cor_area_synthese c2 USING (id_synthese)
-    	WHERE tx.cd_nom=taxonomie.find_cdref(cd_nom) AND c2.id_area = ar.id_area ORDER BY date_min ASC LIMIT 1  ) AS date_first_obs,
-    (SELECT date_min FROM gn_synthese.synthese_usable s2 JOIN gn_synthese.cor_area_synthese c2 USING (id_synthese)
-    	WHERE tx.cd_nom=taxonomie.find_cdref(cd_nom) AND c2.id_area = ar.id_area ORDER BY date_min DESC LIMIT 1 OFFSET 1  ) AS date_previous_obs,
+    min(date_min) OVER (PARTITION BY tx.cd_nom, ar.id_area) AS date_first_obs,
+    max(date_max) OVER (PARTITION BY tx.cd_nom, ar.id_area ORDER BY date_max ROWS UNBOUNDED PRECEDING EXCLUDE CURRENT ROW) AS date_previous_obs,
     s.date_min AS date_obs,
     s.meta_create_date AS pub_date,
     (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_name ,
@@ -38,13 +36,14 @@ class MyCustomQuery(CustomQuery) :
     (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'FM')) AS famille,
     id_media
 	FROM gn_synthese.synthese s 
-    JOIN taxonomie.taxref tx ON tx.cd_nom = taxonomie.find_cdref_sp(s.cd_nom)
+	JOIN taxonomie.taxref_cdref_sp sp ON sp.cd_nom = s.cd_nom 
+    JOIN taxonomie.taxref tx ON tx.cd_nom = sp.cd_ref_sp
     JOIN gn_synthese.cor_area_synthese cas ON cas.id_synthese = s.id_synthese 
     JOIN ref_geo.l_areas ar ON ar.id_area = cas.id_area 
     LEFT JOIN taxonomie.t_medias media ON media.cd_ref=tx.cd_nom AND media.id_type=1
     WHERE 
     	ar.area_code = :area
-    	 AND s.meta_create_date >= now()-'15 days'::INTERVAL AND s.meta_create_date IS NOT null 
+    	 /*AND s.meta_create_date >= now()-'15 days'::INTERVAL*/ AND s.meta_create_date IS NOT null 
         AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
     ORDER BY s.unique_id_sinp
     LIMIT 150
