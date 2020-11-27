@@ -17,34 +17,32 @@ class MyCustomQuery(CustomQuery) :
         tx=Taxref.query.filter_by(cd_nom=cd_nom).first()
         self.rss_channel_info.update(dict(title='Observation de {}'.format(tx.lb_nom), link='https://clicnat.fr', description="Flux permettant de recevoir les observations d'un taxon" ))
         self.sql_text = """
-    SELECT * FROM (
-                    SELECT 
-    s.unique_id_sinp,
-    s.date_min AS date_obs,
-    s.meta_create_date AS pub_date,
-    (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_name ,
-    (SELECT area_code FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_code ,
-    (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=36 LIMIT 1) AS epci_name ,
-    (SELECT area_code FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=36 LIMIT 1) AS epci_code ,
-    s.observers,
-    tx.lb_nom,
-    tx.cd_nom,
-    (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'CL')) AS classe,
-    (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'OR')) AS ordre,
-    (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'FM')) AS famille,
-    id_media
-	FROM gn_synthese.synthese s 
-    JOIN taxonomie.taxref tx ON tx.cd_nom = taxonomie.find_cdref_sp(s.cd_nom)
-    LEFT JOIN taxonomie.t_medias media ON media.cd_ref=tx.cd_nom AND media.id_type=1
-    WHERE 
-        (tx.cd_nom = :cd_nom OR
-    	EXISTS (SELECT cd_nom FROM taxonomie.find_all_taxons_parents(tx.cd_nom) WHERE cd_nom = :cd_nom) )
-    	 AND s.meta_create_date >= now()-'15 days'::INTERVAL AND s.meta_create_date IS NOT null 
-        AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
-    GROUP BY s.id_synthese , tx.cd_nom, media.id_media 
-    ORDER BY s.meta_create_date DESC 
-    LIMIT 150
-    ) as a ORDER BY pub_date DESC
+                  SELECT 
+        s.unique_id_sinp,
+        s.date_min AS date_obs,
+        s.meta_create_date AS pub_date,
+        (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_name ,
+        (SELECT area_code FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=25 LIMIT 1) AS commune_code ,
+        (SELECT area_name FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=36 LIMIT 1) AS epci_name ,
+        (SELECT area_code FROM ref_geo.l_areas JOIN gn_synthese.cor_area_synthese USING (id_area) WHERE id_synthese=s.id_synthese AND id_type=36 LIMIT 1) AS epci_code ,
+        s.observers,
+        tx.lb_nom,
+        tx.cd_nom,
+        (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'CL')) AS classe,
+        (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'OR')) AS ordre,
+        (SELECT lb_nom FROM taxonomie.taxref WHERE cd_nom=taxonomie.find_parent(tx.cd_nom,'FM')) AS famille,
+        id_media
+        FROM gn_synthese.synthese s 
+        JOIN taxonomie.taxref tx ON tx.cd_nom = s.cd_nom 
+        JOIN taxonomie.taxref_tree_parents ttp ON ttp.cd_nom = tx.cd_ref 
+        LEFT JOIN taxonomie.t_medias media ON media.cd_ref=tx.cd_nom AND media.id_type=1
+        WHERE 
+            ttp.cd_nom_parent = :cd_nom 
+	         AND s.meta_create_date >= now()-'15 days'::INTERVAL AND s.meta_create_date IS NOT null 
+            AND tx.cd_nom NOT IN (SELECT cd_ref FROM gn_sensitivity.t_sensitivity_rules_cd_ref )
+        GROUP BY s.id_synthese , tx.cd_nom, media.id_media 
+        ORDER BY s.meta_create_date DESC 
+        LIMIT 150
         """
 
     def result_process(self, x): #TODO utilser les tempates jinja
